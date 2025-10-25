@@ -34,9 +34,18 @@ export const getAllTask = async (req, res) => {
   }
 };
 
+export const getTaskByUser = async (req, res) => {
+  try {
+    const tasks = await Task.find({ creator: req.user });
+    return res.status(200).json(tasks);
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+
 export const getTaskById = async (req, res) => {
   try {
-    const foundTask = await Task.findById(req.query.id);
+    const foundTask = await Task.findById(req.params.id);
     if (!foundTask) return res.status(404).json({ message: "Task not found" });
 
     return res.status(200).json(foundTask);
@@ -48,7 +57,7 @@ export const getTaskById = async (req, res) => {
 export const updateTask = async (req, res) => {
   try {
     const updates = req.body;
-    const foundTask = await Task.findById(req.query.id);
+    const foundTask = await Task.findById(req.params.id);
     if (!foundTask) return res.status(404).json({ message: "Task not found" });
 
     const userId = req.user;
@@ -58,7 +67,7 @@ export const updateTask = async (req, res) => {
         .status(401)
         .json({ message: "Not authorized to update this task" });
 
-    await Task.findByIdAndUpdate(req.query.id, updates);
+    await Task.findByIdAndUpdate(req.params.id, updates);
     return res.status(200).json({ message: "Task updated successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -67,7 +76,7 @@ export const updateTask = async (req, res) => {
 
 export const deleteTask = async (req, res) => {
   try {
-    const foundTask = await Task.findById(req.query.id);
+    const foundTask = await Task.findById(req.params.id);
     if (!foundTask) return res.status(404).json({ message: "Task not found" });
 
     const userId = req.user;
@@ -77,7 +86,7 @@ export const deleteTask = async (req, res) => {
         .status(401)
         .json({ message: "Not authorized to delete this task" });
 
-    await Task.findByIdAndDelete(req.query.id);
+    await Task.findByIdAndDelete(req.params.id);
     return res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
