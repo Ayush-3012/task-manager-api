@@ -80,8 +80,10 @@ export const deleteTask = async (req, res) => {
     if (!foundTask) return res.status(404).json({ message: "Task not found" });
 
     const userId = req.user;
+    const foundUser = await User.findById(userId);
+    const isAdmin = foundUser.role === "admin";
 
-    if (foundTask.creator.toString() !== userId.toString())
+    if (!isAdmin && foundTask.creator.toString() !== userId.toString())
       return res
         .status(401)
         .json({ message: "Not authorized to delete this task" });
